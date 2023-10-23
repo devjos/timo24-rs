@@ -1,5 +1,6 @@
 use reqwest::blocking::{Client, ClientBuilder};
 use serde::Deserialize;
+use std::collections::HashMap;
 use uuid::Uuid;
 
 #[derive(Deserialize)]
@@ -7,7 +8,7 @@ pub struct TimoUserConfig {
     firma: String,
     user: String,
     password: String,
-    mitarbeiter: String,
+    user_id: String,
 }
 
 #[derive(Debug)]
@@ -20,6 +21,11 @@ pub enum Zeitart {
 pub struct TimoClient {
     config: TimoUserConfig,
     client: Client,
+}
+
+#[derive(Debug)]
+pub enum Project {
+    SprintMeeting,
 }
 
 impl TimoClient {
@@ -63,7 +69,7 @@ impl TimoClient {
         }
     }
 
-    pub fn book_attendance(&self, attendance_type: Zeitart, date: &str, time: &str) {
+    pub fn book_attendance(&self, attendance_type: &Zeitart, date: &str, time: &str) {
         let art = match attendance_type {
             Zeitart::Kommen => "1",
             Zeitart::Gehen => "2",
@@ -72,7 +78,7 @@ impl TimoClient {
         };
         let attendance_params = [
             ("id", "-1"),
-            ("mitarbeiter", &self.config.mitarbeiter),
+            ("mitarbeiter", &self.config.user_id),
             ("art", art),
             ("datum", date),
             ("zeit", time),
@@ -98,6 +104,67 @@ impl TimoClient {
                 attendance_type,
                 date,
                 time,
+                res.status().as_u16()
+            );
+        }
+    }
+
+    pub fn book_project(&self, project: &Project, date: &str, hours: &str) {
+        let project_id = match project {
+            Project::SprintMeeting => "473",
+        };
+
+        let mut project_params = HashMap::new();
+        project_params.insert("abrechenbar", "false");
+        //project_params.insert("abschaetzung", null);
+        project_params.insert("activityType", "-1");
+        project_params.insert("activityTypeEntry", "");
+        //project_params.insert("activityTypeMatrix", null);
+        //project_params.insert("applicationId", null);
+        project_params.insert("customerId", "kid_6");
+        project_params.insert("date", date);
+        //project_params.insert("dateTo", null);
+        project_params.insert("description", "");
+        project_params.insert("fahrtkm", "");
+        //project_params.insert("fahrtzeit", null);
+        project_params.insert("from", "00:00");
+        project_params.insert("hours", hours);
+        //project_params.insert("hoursDropdown", null);
+        project_params.insert("id", "-1");
+        project_params.insert("journey", "null");
+        project_params.insert("leistungsort", "");
+        project_params.insert("orderNo", "");
+        project_params.insert("premiumable", "false");
+        project_params.insert("projectId", project_id);
+        project_params.insert("skilllevel", "null");
+        project_params.insert("taskId", "1233");
+        project_params.insert("teamId", "null");
+        //project_params.insert("ticketId": null),
+        project_params.insert("to", hours);
+        //project_params.insert("units": null);
+        project_params.insert("userId", &self.config.user_id);
+        project_params.insert("vehicle", "false");
+
+        let res = self
+            .client
+            .post("https://836.timo24.de/timo/services/rest/wtoverview/saveworkingtimeform?tabular=true&central=false")
+            .json(&project_params)
+            .send()
+            .unwrap();
+
+        if res.status().is_success() {
+            println!(
+                "Booked project {:?} {} {} ✅",
+                project,
+                date,
+                hours
+            );
+        } else {
+            println!(
+                "Could not book project {:?} {} {} ❌ Received status {}",
+                project,
+                date,
+                hours,
                 res.status().as_u16()
             );
         }

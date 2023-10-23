@@ -1,6 +1,7 @@
 mod date;
 mod timo;
 
+use crate::timo::Project::SprintMeeting;
 use crate::timo::Zeitart::{Gehen, Kommen, PauseEnde, PauseStart};
 use crate::timo::{TimoClient, TimoUserConfig};
 use figment::providers::{Format, Json};
@@ -19,13 +20,15 @@ fn main() {
 
     let date = date::today();
 
-    timo_client.book_attendance(Kommen, &date, "08:00");
+    timo_client.book_attendance(&Kommen, &date, "08:00");
     thread::sleep(ONE_SECOND);
-    timo_client.book_attendance(PauseStart, &date, "12:00");
+    timo_client.book_attendance(&PauseStart, &date, "12:00");
     thread::sleep(ONE_SECOND);
-    timo_client.book_attendance(PauseEnde, &date, "12:30");
+    timo_client.book_attendance(&PauseEnde, &date, "12:30");
     thread::sleep(ONE_SECOND);
-    timo_client.book_attendance(Gehen, &date, "16:30");
+    timo_client.book_attendance(&Gehen, &date, "16:30");
+
+    timo_client.book_project(&SprintMeeting, &date, "0:30");
 
     timo_client.print_login_url();
 }
