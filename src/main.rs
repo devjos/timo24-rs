@@ -18,6 +18,8 @@ pub struct TimeConfig {
     pause_start_time: String,
     pause_ende_time: String,
     gehen_time: String,
+
+    sprint_meeting_time: String,
 }
 
 fn main() {
@@ -38,7 +40,7 @@ fn main() {
     thread::sleep(ONE_SECOND);
     timo_client.book_attendance(&Gehen, &date, &time_config.gehen_time);
 
-    timo_client.book_project(&SprintMeeting, &date, "0:30");
+    timo_client.book_project(&SprintMeeting, &date, &time_config.sprint_meeting_time);
 
     timo_client.print_login_url();
 }

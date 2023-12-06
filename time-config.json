@@ -2,5 +2,7 @@
   "kommen_time": "08:00",
   "pause_start_time": "12:00",
   "pause_ende_time": "12:30",
-  "gehen_time": "16:30"
+  "gehen_time": "16:30",
+
+  "sprint_meeting_time": "0:30"
 }
