@@ -153,12 +153,7 @@ impl TimoClient {
             .unwrap();
 
         if res.status().is_success() {
-            println!(
-                "Booked project {:?} {} {} ✅",
-                project,
-                date,
-                hours
-            );
+            println!("Booked project {:?} {} {} ✅", project, date, hours);
         } else {
             println!(
                 "Could not book project {:?} {} {} ❌ Received status {}",
