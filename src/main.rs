@@ -8,25 +8,35 @@ use figment::providers::{Format, Json};
 use figment::Figment;
 use std::thread;
 use std::time::Duration;
+use serde::Deserialize;
 
 const ONE_SECOND: Duration = Duration::from_secs(1);
 
-fn main() {
-    let config = read_timo_user_config();
+#[derive(Deserialize)]
+pub struct TimeConfig {
+    kommen_time: String,
+    pause_start_time: String,
+    pause_ende_time: String,
+    ende_time: String,
+}
 
-    let timo_client = TimoClient::new(config);
+fn main() {
+    let user_config = read_timo_user_config();
+    let time_config = read_time_config();
+
+    let timo_client = TimoClient::new(user_config);
     timo_client.login();
     thread::sleep(ONE_SECOND);
 
     let date = date::today();
 
-    timo_client.book_attendance(&Kommen, &date, "08:00");
+    timo_client.book_attendance(&Kommen, &date, &time_config.kommen_time);
     thread::sleep(ONE_SECOND);
-    timo_client.book_attendance(&PauseStart, &date, "12:00");
+    timo_client.book_attendance(&PauseStart, &date, &time_config.pause_start_time);
     thread::sleep(ONE_SECOND);
-    timo_client.book_attendance(&PauseEnde, &date, "12:30");
+    timo_client.book_attendance(&PauseEnde, &date, &time_config.pause_ende_time);
     thread::sleep(ONE_SECOND);
-    timo_client.book_attendance(&Gehen, &date, "16:30");
+    timo_client.book_attendance(&Gehen, &date, &time_config.ende_time);
 
     timo_client.book_project(&SprintMeeting, &date, "0:30");
 
@@ -35,7 +45,16 @@ fn main() {
 
 fn read_timo_user_config() -> TimoUserConfig {
     let config: TimoUserConfig = Figment::new()
-        .merge(Json::file("config.json"))
+        .merge(Json::file("user-config.json"))
+        .extract()
+        .unwrap();
+    config
+}
+
+
+fn read_time_config() -> TimeConfig {
+    let config: TimeConfig = Figment::new()
+        .merge(Json::file("time-config.json"))
         .extract()
         .unwrap();
     config
