@@ -49,7 +49,7 @@ fn read_timo_user_config() -> TimoUserConfig {
     let config: TimoUserConfig = Figment::new()
         .merge(Json::file("user-config.json"))
         .extract()
-        .unwrap();
+        .expect("Error reading user-config.json");
     config
 }
 
@@ -57,6 +57,6 @@ fn read_time_config() -> TimeConfig {
     let config: TimeConfig = Figment::new()
         .merge(Json::file("time-config.json"))
         .extract()
-        .unwrap();
+        .expect("Error reading time-config.json");
     config
 }
