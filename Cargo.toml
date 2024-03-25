@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 log = "0.4"
-reqwest = { version = "0.11", features = ["blocking", "json", "cookies"] }
+reqwest = { version = "0.12", features = ["blocking", "json", "cookies"] }
 simplelog = "0.12"
 uuid =  {version = "1.5.0", features = ["v4"]}
 figment = { version = "0.10", features = ["json"] }
